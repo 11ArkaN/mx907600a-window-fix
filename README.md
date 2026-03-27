@@ -26,7 +26,7 @@ This project fixes the main usability problems of the original software on moder
 
 Do not publish vendor binaries from the original application.
 
-This repository intentionally contains only original source code for the patch layer. The build process reads the locally installed vendor DLL from your own `MX907600A` installation and embeds it into the generated launcher for personal/internal use.
+This repository intentionally contains only original source code for the patch layer. The generated launcher embeds only the custom proxy DLL. On first run it backs up the locally installed vendor `Draw9076.dll` to `Draw9076.real.dll` and then drops the proxy in its place.
 
 ## Requirements
 
@@ -47,11 +47,6 @@ Output:
 
 - `dist/MX907600A_FixedLauncher.exe`
 
-The script uses:
-
-- `Draw9076.real.dll` if it already exists in the app folder,
-- otherwise the original `Draw9076.dll`.
-
 ## Install
 
 Example:
@@ -69,7 +64,8 @@ Put `MX907600A_FixedLauncher.exe` in the same folder as `MX907600A.exe` and run 
 The launcher:
 
 - auto-elevates through UAC when needed,
-- writes the embedded DLL payloads into the application directory,
+- backs up the local vendor `Draw9076.dll` to `Draw9076.real.dll` when needed,
+- writes the embedded proxy DLL into the application directory,
 - starts the original `MX907600A.exe`,
 - applies the window/layout fixes.
 

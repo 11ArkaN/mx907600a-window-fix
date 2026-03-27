@@ -17,7 +17,6 @@ internal static class Program
     private const string TargetDrawProxyFileName = "Draw9076.dll";
     private const string TargetDrawRealFileName = "Draw9076.real.dll";
     private const string DrawProxyResourceName = "MX907600AWindowFix.Draw9076.dll";
-    private const string DrawRealResourceName = "MX907600AWindowFix.Draw9076.real.dll";
 
     private const int GWL_STYLE = -16;
     private const int WS_MAXIMIZEBOX = 0x00010000;
@@ -165,39 +164,55 @@ internal static class Program
             return;
         }
 
-        WriteEmbeddedFileIfDifferent(DrawProxyResourceName, Path.Combine(LauncherDirectory, TargetDrawProxyFileName));
-        WriteEmbeddedFileIfDifferent(DrawRealResourceName, Path.Combine(LauncherDirectory, TargetDrawRealFileName));
+        string proxyPath = Path.Combine(LauncherDirectory, TargetDrawProxyFileName);
+        string realPath = Path.Combine(LauncherDirectory, TargetDrawRealFileName);
+        byte[] proxyPayload = ReadEmbeddedResource(DrawProxyResourceName);
+        if (proxyPayload == null || proxyPayload.Length == 0)
+        {
+            return;
+        }
+
+        EnsureRealDllBackup(proxyPath, realPath, proxyPayload);
+        WriteFileIfDifferent(proxyPayload, proxyPath);
     }
 
-    private static void WriteEmbeddedFileIfDifferent(string resourceName, string destinationPath)
+    private static void EnsureRealDllBackup(string proxyPath, string realPath, byte[] proxyPayload)
     {
-        byte[] payload = ReadEmbeddedResource(resourceName);
-        if (payload == null || payload.Length == 0)
+        if (File.Exists(realPath))
         {
             return;
         }
 
         try
         {
+            if (!File.Exists(proxyPath))
+            {
+                return;
+            }
+
+            byte[] existing = File.ReadAllBytes(proxyPath);
+            if (ByteArrayEquals(existing, proxyPayload))
+            {
+                return;
+            }
+
+            File.Copy(proxyPath, realPath, false);
+        }
+        catch
+        {
+        }
+    }
+
+    private static void WriteFileIfDifferent(byte[] payload, string destinationPath)
+    {
+        try
+        {
             if (File.Exists(destinationPath))
             {
                 byte[] existing = File.ReadAllBytes(destinationPath);
-                if (existing.Length == payload.Length)
+                if (ByteArrayEquals(existing, payload))
                 {
-                    bool same = true;
-                    for (int i = 0; i < existing.Length; i++)
-                    {
-                        if (existing[i] != payload[i])
-                        {
-                            same = false;
-                            break;
-                        }
-                    }
-
-                    if (same)
-                    {
-                        return;
-                    }
+                    return;
                 }
             }
 
@@ -206,6 +221,24 @@ internal static class Program
         catch
         {
         }
+    }
+
+    private static bool ByteArrayEquals(byte[] left, byte[] right)
+    {
+        if (left == null || right == null || left.Length != right.Length)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < left.Length; i++)
+        {
+            if (left[i] != right[i])
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     private static byte[] ReadEmbeddedResource(string resourceName)

@@ -18,15 +18,6 @@ if (-not (Test-Path (Join-Path $AppDir "MX907600A.exe"))) {
     throw "MX907600A.exe not found in $AppDir"
 }
 
-$realDllPath = Join-Path $AppDir "Draw9076.real.dll"
-if (-not (Test-Path $realDllPath)) {
-    $realDllPath = Join-Path $AppDir "Draw9076.dll"
-}
-
-if (-not (Test-Path $realDllPath)) {
-    throw "Neither Draw9076.real.dll nor Draw9076.dll was found in $AppDir"
-}
-
 if (-not (Test-Path $cscPath)) {
     throw "C# compiler not found at $cscPath"
 }
@@ -55,7 +46,6 @@ if ($LASTEXITCODE -ne 0) {
     /optimize+ `
     /target:winexe `
     "/resource:$proxyOut,MX907600AWindowFix.Draw9076.dll" `
-    "/resource:$realDllPath,MX907600AWindowFix.Draw9076.real.dll" `
     "/out:$launcherOut" `
     $launcherSource
 
