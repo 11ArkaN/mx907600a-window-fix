@@ -1,0 +1,15 @@
+bin/
+obj/
+dist/
+*.user
+*.suo
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.dll
+*.exe
+!src/
+!scripts/
+!README.md
+!LICENSE

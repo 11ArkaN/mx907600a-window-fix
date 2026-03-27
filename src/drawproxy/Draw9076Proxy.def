@@ -1,0 +1,8 @@
+LIBRARY Draw9076
+EXPORTS
+    _CreateAPMFile@24=_CreateAPMFile@24
+    _DrawDemoVersion@8=_DrawDemoVersion@8
+    _DrawGraph2@44=_DrawGraph2@44
+    _DrawGraph@44=_DrawGraph@44
+    _DrawSetOffset@8=_DrawSetOffset@8
+    _DrawSetReso@8=_DrawSetReso@8
